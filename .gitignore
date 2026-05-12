@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# heavy game/provider images — distribute separately
+/public/images/
+
+# admin seed contains password hash; use db/admin.example.sql as template
+/db/admin.sql

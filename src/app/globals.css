@@ -24,3 +24,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer base {
+  body {
+    background-color: #080809; /* Hitam pekat khas casino */
+    @apply antialiased;
+  }
+}
+
+/* Custom Scrollbar untuk Tab Provider */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,28 @@
+CREATE DATABASE IF NOT EXISTS rtp_app
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_unicode_ci;
+
+USE rtp_app;
+
+DROP TABLE IF EXISTS game;
+DROP TABLE IF EXISTS provider;
+
+CREATE TABLE provider (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  nama VARCHAR(100) NOT NULL,
+  logo VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_provider_nama (nama)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE game (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_provider INT UNSIGNED NOT NULL,
+  nama VARCHAR(255) NOT NULL,
+  gambar VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id),
+  KEY fk_game_provider (id_provider),
+  CONSTRAINT fk_game_provider
+    FOREIGN KEY (id_provider) REFERENCES provider(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
