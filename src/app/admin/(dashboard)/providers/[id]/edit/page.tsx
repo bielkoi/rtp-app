@@ -13,6 +13,7 @@ interface ProviderRow extends RowDataPacket {
   id: number;
   nama: string;
   logo: string;
+  rating: number;
 }
 
 export default async function EditProviderPage({
@@ -25,7 +26,7 @@ export default async function EditProviderPage({
   if (!Number.isFinite(numId)) notFound();
 
   const [rows] = await db.query<ProviderRow[]>(
-    "SELECT id, nama, logo FROM provider WHERE id = ? LIMIT 1",
+    "SELECT id, nama, logo, rating FROM provider WHERE id = ? LIMIT 1",
     [numId]
   );
   const provider = rows[0];
@@ -40,19 +41,19 @@ export default async function EditProviderPage({
     <div>
       <Link
         href="/admin/providers"
-        className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white mb-4"
+        className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-zinc-400 hover:text-white mb-4"
       >
         <ChevronLeft size={14} /> Providers
       </Link>
-      <div className="mb-6 border-l-4 border-blue-600 pl-4">
+      <div className="mb-6 border-l-4 border-red-600 pl-4">
         <h1 className="text-xl font-black italic tracking-tighter text-white uppercase">
-          Edit <span className="text-blue-500">{provider.nama}</span>
+          Edit <span className="text-red-500">{provider.nama}</span>
         </h1>
-        <p className="text-[10px] text-slate-500 font-mono tracking-widest">ID #{provider.id}</p>
+        <p className="text-[10px] text-zinc-500 font-mono tracking-widest">ID #{provider.id}</p>
       </div>
       <ProviderForm
         action={bound}
-        initial={{ nama: provider.nama, logo: provider.logo }}
+        initial={{ nama: provider.nama, logo: provider.logo, rating: Number(provider.rating) }}
         submitLabel="Save"
       />
     </div>

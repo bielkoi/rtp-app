@@ -8,7 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -20,14 +20,18 @@
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background-color: #080809;
+  background-image: var(--bg-url, url("/images/background/bg-default.webp"));
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 @layer base {
   body {
-    background-color: #080809; /* Hitam pekat khas casino */
     @apply antialiased;
   }
 }
@@ -35,4 +39,61 @@ body {
 /* Custom Scrollbar untuk Tab Provider */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Styled range slider (single or dual thumb) — track input transparan, hanya thumb interaktif */
+.rtp-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: none;
+  background: transparent;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+
+.rtp-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  border: 2px solid #18181b;
+  border-radius: 9999px;
+  cursor: grab;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
+  transition: transform 120ms ease;
+}
+
+.rtp-slider input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.rtp-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  border: 2px solid #18181b;
+  border-radius: 9999px;
+  cursor: grab;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
+}
+
+@theme {
+  --animate-marquee: marquee-scroll 35s linear infinite;
+  --animate-shine: shine-sweep 3s ease-in-out infinite;
+
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes shine-sweep {
+    0% { transform: translateX(-150%) skewX(-20deg); }
+    55%, 100% { transform: translateX(350%) skewX(-20deg); }
+  }
 }

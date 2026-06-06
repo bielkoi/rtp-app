@@ -1,0 +1,15 @@
+USE rtp_app;
+
+ALTER TABLE app_setting
+  ADD COLUMN IF NOT EXISTS background_filename VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS logo_filename VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS running_text TEXT DEFAULT NULL;
+
+-- Seed default running_text with current hardcoded items (newline separated)
+UPDATE app_setting
+SET running_text = 'PALING GAMPANG MENANG DI INDONESIA
+HARAP SELALU CHECK REKENING AKTIF DEPOSIT KAMI
+MINIMAL DEPO 5RIBU DAN MINIMAL WD 25RIBU
+PROMO BONUS NEW MEMBER 100%
+LIVE CHAT 24 JAM NONSTOP'
+WHERE id = 1 AND (running_text IS NULL OR running_text = '');

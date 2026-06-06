@@ -70,7 +70,7 @@ npm run dev
 ```
 
 Public site: <http://localhost:3000> (or whichever port Next picks if 3000 is busy)
-Admin login: <http://localhost:3000/admin/login>
+Admin login: <http://localhost:3000/login>
 
 ## Project layout
 
@@ -78,8 +78,8 @@ Admin login: <http://localhost:3000/admin/login>
 src/
   app/
     page.tsx                     # public dashboard (Server Component)
+    login/                       # /login (public)
     admin/
-      login/                     # /admin/login (public)
       (dashboard)/               # protected; shares sidebar layout
         page.tsx                 # /admin
         providers/...            # CRUD provider

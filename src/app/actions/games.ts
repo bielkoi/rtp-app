@@ -1,12 +1,17 @@
 "use server";
 
-import path from "node:path";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
-import { saveUpload, slugFolder, slugBase } from "@/lib/upload";
+import {
+  saveUpload,
+  deleteUploadedFile,
+  slugBase,
+  PRESETS,
+  GAMES_SUBDIR,
+} from "@/lib/upload";
 
 export interface GameFormState {
   error?: string;
@@ -14,17 +19,16 @@ export interface GameFormState {
 
 const GAME_MIMES = ["image/png", "image/jpeg", "image/webp"];
 
-interface ProviderNameRow extends RowDataPacket {
-  nama: string;
+interface GameImageRow extends RowDataPacket {
+  gambar: string;
 }
 
-async function providerFolder(id: number): Promise<string | null> {
-  const [rows] = await db.query<ProviderNameRow[]>(
-    "SELECT nama FROM provider WHERE id = ? LIMIT 1",
+async function getCurrentGameImage(id: number): Promise<string | null> {
+  const [rows] = await db.query<GameImageRow[]>(
+    "SELECT gambar FROM game WHERE id = ? LIMIT 1",
     [id]
   );
-  const nama = rows[0]?.nama;
-  return nama ? slugFolder(nama) : null;
+  return rows[0]?.gambar ?? null;
 }
 
 function validate(nama: string, idProvider: number) {
@@ -51,16 +55,14 @@ export async function createGame(
   const err = validate(nama, idProvider);
   if (err) return { error: err };
 
-  const folder = await providerFolder(idProvider);
-  if (!folder) return { error: "Provider tidak ditemukan." };
-
   let gambar = gambarText;
   if (gambarFile && gambarFile.size > 0) {
     try {
       const saved = await saveUpload({
         file: gambarFile,
-        subdir: path.join("images", folder),
+        subdir: GAMES_SUBDIR,
         baseName: slugBase(nama),
+        preset: PRESETS.game,
         allowedMimes: GAME_MIMES,
       });
       gambar = saved.filename;
@@ -77,6 +79,7 @@ export async function createGame(
 
   revalidatePath("/admin/games");
   revalidatePath("/admin");
+  revalidatePath("/");
   redirect("/admin/games");
 }
 
@@ -95,16 +98,16 @@ export async function updateGame(
   const err = validate(nama, idProvider);
   if (err) return { error: err };
 
-  const folder = await providerFolder(idProvider);
-  if (!folder) return { error: "Provider tidak ditemukan." };
-
   let gambar = gambarText;
+  let oldImage: string | null = null;
   if (gambarFile && gambarFile.size > 0) {
+    oldImage = await getCurrentGameImage(id);
     try {
       const saved = await saveUpload({
         file: gambarFile,
-        subdir: path.join("images", folder),
+        subdir: GAMES_SUBDIR,
         baseName: slugBase(nama),
+        preset: PRESETS.game,
         allowedMimes: GAME_MIMES,
       });
       gambar = saved.filename;
@@ -119,8 +122,13 @@ export async function updateGame(
     [idProvider, nama, gambar, id]
   );
 
+  if (oldImage && oldImage !== gambar) {
+    await deleteUploadedFile(GAMES_SUBDIR, oldImage);
+  }
+
   revalidatePath("/admin/games");
   revalidatePath("/admin");
+  revalidatePath("/");
   redirect("/admin/games");
 }
 
@@ -128,7 +136,12 @@ export async function deleteGame(formData: FormData) {
   await requireAdmin();
   const id = Number(formData.get("id"));
   if (!Number.isFinite(id)) return;
+  const oldImage = await getCurrentGameImage(id);
   await db.query<ResultSetHeader>("DELETE FROM game WHERE id = ?", [id]);
+  if (oldImage) {
+    await deleteUploadedFile(GAMES_SUBDIR, oldImage);
+  }
   revalidatePath("/admin/games");
   revalidatePath("/admin");
+  revalidatePath("/");
 }
